@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StealthText - Encrypted Image Steganography</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
+
+    <header>
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h1>StealthText</h1>
+        </div>
+        <p class="tagline">Hide encrypted messages inside images flawlessly.</p>
+    </header>
+
+    <main class="container">
+        <!-- Encode Card -->
+        <section class="card glass" id="encode-section">
+            <h2><span class="icon">🔒</span> Encrypt & Hide</h2>
+            
+            <div class="upload-zone" id="encode-dropzone">
+                <input type="file" id="encode-file" accept="image/png, image/jpeg" hidden>
+                <div class="upload-content" id="encode-upload-content">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    <p>Drag & drop an image or <span>browse</span></p>
+                    <small>Supports PNG, JPEG (Max 25MB)</small>
+                </div>
+                <div class="preview-container hidden" id="encode-preview-container">
+                    <img id="encode-preview" alt="Preview">
+                    <button class="remove-btn" id="encode-remove" aria-label="Remove image">✕</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="secret-message">Secret Message <span id="char-count">0 / 5000</span></label>
+                <textarea id="secret-message" placeholder="Type the message you want to hide..." maxlength="5000"></textarea>
+                <small class="capacity-indicator" id="capacity-indicator">Image capacity: 0 chars</small>
+            </div>
+
+            <div class="input-group">
+                <label for="encode-password">Password (Optional)</label>
+                <input type="password" id="encode-password" placeholder="AES-256-GCM Encryption">
+                <small>Adds military-grade encryption before hiding.</small>
+            </div>
+
+            <div class="actions">
+                <button class="btn primary" id="encode-btn" disabled>Encrypt & Hide</button>
+                <button class="btn secondary hidden" id="download-btn">Download PNG</button>
+            </div>
+            <div class="loader hidden" id="encode-loader"></div>
+        </section>
+
+        <!-- Decode Card -->
+        <section class="card glass" id="decode-section">
+            <h2><span class="icon">🔓</span> Decode & Reveal</h2>
+            
+            <div class="upload-zone" id="decode-dropzone">
+                <input type="file" id="decode-file" accept="image/png" hidden>
+                <div class="upload-content" id="decode-upload-content">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    <p>Drag & drop encoded image or <span>browse</span></p>
+                    <small>Supports PNG only</small>
+                </div>
+                <div class="preview-container hidden" id="decode-preview-container">
+                    <img id="decode-preview" alt="Preview">
+                    <button class="remove-btn" id="decode-remove" aria-label="Remove image">✕</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="decode-password">Password (If encrypted)</label>
+                <input type="password" id="decode-password" placeholder="Enter password to decrypt">
+            </div>
+
+            <div class="actions">
+                <button class="btn primary" id="decode-btn" disabled>Reveal Hidden Text</button>
+            </div>
+            
+            <div class="loader hidden" id="decode-loader"></div>
+
+            <div class="result-panel hidden" id="result-panel">
+                <div class="result-header">
+                    <h3>Extracted Message</h3>
+                    <button class="icon-btn" id="copy-btn" title="Copy to clipboard">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                </div>
+                <pre><code id="decoded-text"></code></pre>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Uses LSB Steganography & AES-256 Encryption entirely in your browser.</p>
+        <p class="warning">⚠️ Warning: Saving encoded images as JPEG or compressing them will destroy the hidden data. Always use PNG.</p>
+        <p class="credits">Made by <a href="mailto:gurupadayyaodeyar@gmail.com">Gurupadayya Odeyar</a></p>
+    </footer>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
